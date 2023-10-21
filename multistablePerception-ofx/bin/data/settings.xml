@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<group>
+	<shape>0</shape>
+	<number_meshes>250</number_meshes>
+	<point_size>0</point_size>
+	<hue_start>0</hue_start>
+	<hue_depth>0</hue_depth>
+	<saturation>1</saturation>
+	<rotate_x>0.05</rotate_x>
+	<fuzzy>0</fuzzy>
+	<random_follow>0.685</random_follow>
+	<simplex_size>0</simplex_size>
+	<simplex_offset>0.001</simplex_offset>
+	<simplex_depth>0.01</simplex_depth>
+	<simplex_wrap>12.5664</simplex_wrap>
+</group>
