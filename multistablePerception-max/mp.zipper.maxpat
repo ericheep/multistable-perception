@@ -665,7 +665,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 607.75, 406.514697829882266, 97.0, 22.0 ],
-					"text" : "scale 0. 1. 1. #2"
+					"text" : "scale 0. 1. 1. #3"
 				}
 
 			}
@@ -809,7 +809,7 @@
 					"numoutlets" : 4,
 					"outlettype" : [ "int", "", "", "int" ],
 					"patching_rect" : [ 100.0625, 475.897058367729187, 75.0, 22.0 ],
-					"text" : "counter 1 64"
+					"text" : "counter 1 #2"
 				}
 
 			}
@@ -852,7 +852,7 @@
 , 			{
 				"box" : 				{
 					"id" : "obj-87",
-					"lastchannelcount" : 24,
+					"lastchannelcount" : 16,
 					"maxclass" : "mc.live.gain~",
 					"numinlets" : 1,
 					"numoutlets" : 4,
@@ -919,7 +919,7 @@
 					"numoutlets" : 4,
 					"outlettype" : [ "multichannelsignal", "", "", "" ],
 					"patching_rect" : [ 31.199999999999704, 600.0, 827.150000000001114, 22.0 ],
-					"text" : "mc.poly~ mp.polyZip 24 @args #1"
+					"text" : "mc.poly~ mp.polyZip #2 @args #1"
 				}
 
 			}

@@ -6,24 +6,35 @@
 #include "Particle.hpp"
 #include <random>
 
-Particle::Particle(ofVec3f _point, float _lifetime) {
-    maxParticleSize = 20;
+Particle::Particle(ofVec3f _point, Boolean _isPersistent, float _lifetime) {
+    maxParticleSize = 100;
     
+    isPersistent = _isPersistent;
     lifetime = sqrt(_lifetime);
-    particleSize = _lifetime * maxParticleSize;
+    lifetimeSpeed = 0.01;
+    
+    if (isPersistent) {
+        particleSize = 5;
+    } else {
+        particleSize = 0;
+    }
     
     origin.x = _point.x;
     origin.y = _point.y;
     origin.z = _point.z;
     
-    position.x = origin.x;
-    position.y = origin.y;
-    position.z = origin.z;
+    position.x = _point.x;
+    position.y = _point.y;
+    position.z = _point.z;
     
-    target = ofVec3f(0, 0, 0);
+    target.x = _point.x;
+    target.y = _point.y;
+    target.z = _point.z;
+    
+    simplexTarget = ofVec3f(0, 0, 0);
     morph = ofVec3f(0, 0, 0);
     
-    follow = 0.5;
+    follow = 0.01;
     
     simplexAmount = 0;
     simplexDepth = 0.004;
@@ -38,12 +49,27 @@ Particle::Particle(ofVec3f _point, float _lifetime) {
     
     isAlive = true;
     
-    primaryColor = ofColor::whiteSmoke;
-    secondaryColor = ofColor::pink.getLerped(ofColor::blue, ofRandom(1.0));
+    primaryColor = ofColor::white;
+    secondaryColor = ofColor::grey.getLerped(ofColor::whiteSmoke, ofRandom(1.0));
+    particleColor = primaryColor;
+}
+
+void Particle::setLifetime(float _lifetime, float _lifetimeSpeed) {
+    lifetime = _lifetime;
+    lifetimeSpeed = _lifetimeSpeed;
+    maxParticleSize = particleSize;
+}
+
+void Particle::setPersistence(Boolean persistence) {
+    isPersistent = persistence;
 }
 
 Boolean Particle::getState() {
     return isAlive;
+}
+
+void Particle::setParticleSize(float _particleSize) {
+    particleSize = _particleSize;
 }
 
 void Particle::setCenter(ofVec3f _center) {
@@ -86,10 +112,6 @@ void Particle::setRandomFollow(float _randomFollow) {
     follow = ofRandom(_randomFollow, _randomFollow * 2.0);
 }
 
-void Particle::updatePosition() {
-    position = position.getInterpolated(target, follow);
-}
-
 void Particle::updateSimplexMorph() {
     float x = origin.x * simplexDepth + off;
     float y = origin.y * simplexDepth + off;
@@ -119,19 +141,38 @@ void Particle::updateSimplexMorph() {
     morph.z = v.z;
 }
 
+void Particle::updateOrigin() {
+    // origin = origin.getInterpolated(target, follow);
+}
+
 void Particle::updateTwist() {
     twisted = origin.getRotatedRad(twist.x, twist.y, twist.z);
 }
 
-void Particle::updateTarget() {
-    target = (twisted + morph) * scale;
+void Particle::updateSimplexTarget() {
+    simplexTarget = (twisted + morph) * scale;
+}
+
+void Particle::updatePosition() {
+    position = position.getInterpolated(simplexTarget, follow);
+}
+
+void Particle::update(){
+    if (!isPersistent) {
+        updateLifetime();
+    }
+    updateOrigin();
+    updateTwist();
+    updateSimplexMorph();
+    updateSimplexTarget();
+    updatePosition();
 }
 
 void Particle::updateLifetime() {
-    particleSize = lifetime * maxParticleSize;
-    lifetime -= 0.005;
+    particleSize = ofLerp(particleSize, maxParticleSize, 0.1) * lifetime;
+    lifetime -= lifetimeSpeed;
     particleColor = primaryColor.getLerped(secondaryColor, lifetime);
-    
+        
     if (lifetime < 0) {
         isAlive = false;
     }
@@ -141,14 +182,6 @@ void Particle::draw() {
     ofFill();
     ofSetColor(particleColor);
     ofDrawSphere(position, particleSize);
-}
-
-void Particle::update(){
-    updateLifetime();
-    updateTwist();
-    updateSimplexMorph();
-    updateTarget();
-    updatePosition();
 }
 
 void Particle::setSimplexMorph(float _amount, float _depth, float _offset, float _wrap, float _pow) {
@@ -165,4 +198,8 @@ void Particle::setPosition(ofVec3f _position) {
 
 ofVec3f Particle::getPosition() {
     return position;
+}
+
+float Particle::getParticleSize() {
+    return particleSize;
 }

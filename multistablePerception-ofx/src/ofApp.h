@@ -20,10 +20,11 @@ public:
     void draw();
 private:
     void updateOsc();
+    void updatePointOfInterest();
     void updateParticleSystem();
-    void drawParticleSystem();
 
     ParticleSystem particleSystem;
+    vector<ParticleSystem> pools;
     
     ofShader bloom;
     ofShader blurX;
@@ -49,10 +50,7 @@ private:
     ofColor primaryColor;
     ofColor backgroundColor;
     
-    int roomSelection, previousRoomSelection, runeSelection;
     float fuzzy, scale, follow, statusProgress;
-    float simplexDepth, simplexOffset, simplexWrap, simplexPow, simplexAmount;
-    
     float blur, bloomIntensity, bloomSpread, particleSize, depth;
     Boolean autoRotateFlag;
 };

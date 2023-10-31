@@ -11,10 +11,6 @@
 #include <stdio.h>
 #include <random>
 
-// poission distribution
-static random_device rd;
-static mt19937 gen(rd());
-
 class ParticleSystem {
 public:
     ParticleSystem();
@@ -26,26 +22,29 @@ public:
     ofVec3f getParticlePosition(int index);
     
     void addParticle(float x, float y, float lifetime);
+    void setIndex(int index);
     void setDepth(float _depth);
-    void setSystem(int _whichSystem);
     void setScale(float _scale);
     void setFollow(float _follow);
     void setTwist(ofVec3f _twist);
     void setColor(ofColor _color);
     void setParticleSize(float _size);
     void setSimplexMorph(float _amount, float _depth, float _offset, float _wrap, float _pow);
+    void setRandomParticleSizes(float min, float max);
     
+    void setTargets(ofVec3f target);
     void setNumParticles(int numParticles);
-    void setCircle(float x, float y, float radius);
-    void setRectangle(float x, float y, float width, float height);
+    void setCircle(float x, float y, float radius, int numParticles);
+    void setRectangle(float x, float y, float width, float height, int numParticles);
     void resizeSystem();
-    void calculateMagnitudeExtents();
     
     // actions
+    void dissipate();
     void random();
     void swap();
     void explode();
     int getNumParticles();
+    int getIndex();
     
 private:
     vector<Particle> particles;
@@ -54,8 +53,9 @@ private:
 
     ofColor primaryColor;
     
-    float particleSize, scale, defaultRadius, focusSin, focusInc, targetScale;
-    int numParticles, squareRootNumParticles, type, follow, depth;
+    float particleSize, scale, defaultRadius, targetScale;
+    int numParticles, squareRootNumParticles, type, follow, depth, index;
+    float simplexAmount, simplexDepth, simplexOffset, simplexWrap, simplexPow;
         
     // initialization functions
     void setPoints(vector<ofVec3f> _points);
@@ -65,7 +65,10 @@ private:
     
     void resizeSystem(int _numParticles);
     void updateParticles();
+    
     Particle getRandomParticle();
+    
+    Boolean isChasing;
 };
 
 #endif /* ParticleSystem_hpp */

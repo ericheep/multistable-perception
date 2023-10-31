@@ -9,21 +9,37 @@ ParticleSystem::ParticleSystem() {
     scale = 1.0;
     particleSize = 1.5;
     defaultRadius = 500;
+    depth = 50;
+    
+    center = ofVec3f(0.0, 0.0, 0.0);
     ratios = ofVec3f(0.0, 0.0, 0.0);
     
-    focusInc = 0.0;
-    focusSin = 0.0;
-    
-    depth = 20;
+    isChasing == false;
+}
+
+void ParticleSystem::setIndex(int _index) {
+    index = _index;
+}
+
+int ParticleSystem::getIndex() {
+    return index;
+}
+
+void ParticleSystem::setRandomParticleSizes(float min, float max) {
+    for (int i = 0; i < numParticles; i++) {
+        particles[i].setParticleSize(ofRandom(min, max));
+    }
 }
 
 void ParticleSystem::setNumParticles(int _numParticles) {
     resizeSystem(_numParticles);
 }
 
-void ParticleSystem::setCircle(float _x, float _y, float _radius) {
-    resizeSystem(10000);
-
+void ParticleSystem::setCircle(float _x, float _y, float _radius, int _numParticles) {
+    resizeSystem(_numParticles);
+    center.x = _x;
+    center.y = _y;
+    
     for (int i = 0; i < numParticles; i++) {
         float magnitude = ofRandom(0, _radius);
         float angle = ofRandom(0, TWO_PI);
@@ -32,25 +48,44 @@ void ParticleSystem::setCircle(float _x, float _y, float _radius) {
         float y = sin(angle) * magnitude + _y;
         float z = ofRandom(-depth / 2.0, depth / 2.0);
         
-        // particles[i].setOrigin(ofVec3f(x, y, z));
+        particles[i].setPosition(ofVec3f(_x, _y, z));
+        particles[i].setOrigin(ofVec3f(x, y, z));
+    }
+}
+
+void ParticleSystem::setTargets(ofVec3f target) {
+    for (int i = 0; i < numParticles; i++) {
+        particles[i].setTarget(target);
     }
 }
 
 void ParticleSystem::addParticle(float _x, float _y, float _lifetime) {
-    Particle particle = Particle(ofVec3f(_x, _y, 0), _lifetime);
+    float z = ofRandom(-depth / 2.0, depth / 2.0);
+    ofVec3f point = ofVec3f(_x, _y, z);
+    Particle particle = Particle(point, false, _lifetime);
+    particle.setSimplexMorph(simplexAmount, simplexDepth, simplexOffset, simplexWrap, simplexPow);
+    particle.setRandomFollow(follow);
     particles.push_back(particle);
+    
     numParticles = int(particles.size());
+    
+    if (isChasing) {
+        setTargets(point);
+    }
 }
 
-void ParticleSystem::setRectangle(float _x, float _y, float _width, float _height) {
-    resizeSystem(10000);
+void ParticleSystem::setRectangle(float _x, float _y, float _width, float _height, int _numParticles) {
+    resizeSystem(_numParticles);
+    center.x = _x;
+    center.y = _y;
     
     for (int i = 0; i < numParticles; i++) {
         float x = ofRandom(0, _width) + _x;
         float y = ofRandom(0, _height) + _y;
         float z = ofRandom(-depth / 2.0, depth / 2.0);
         
-        // particles[i].setOrigin(ofVec3f(x, y, z));
+        particles[i].setOrigin(ofVec3f(_x, _y, z));
+        particles[i].setOrigin(ofVec3f(x, y, z));
     }
 }
 
@@ -66,12 +101,13 @@ void ParticleSystem::update() {
     for (int i = 0; i < numParticles; i++) {
         if (!particles[i].getState()) {
             particles.erase(particles.begin() + i);
+            numParticles = int(particles.size());
         }
-        numParticles = int(particles.size());
     }
 }
 
 void ParticleSystem::setFollow(float _follow) {
+    follow = _follow;
     for (int i = 0; i < numParticles; i++) {
         particles[i].setRandomFollow(_follow);
     }
@@ -87,8 +123,11 @@ void ParticleSystem::setDepth(float _depth) {
     }
 }
 
-void ParticleSystem::setParticleSize(float s) {
-    particleSize = s;
+void ParticleSystem::setParticleSize(float _particleSize) {
+    particleSize = _particleSize;
+    for (int i = 0; i < numParticles; i++) {
+        particles[i].setParticleSize(particleSize);
+    }
 }
 
 ofVec3f ParticleSystem::getParticlePosition(int _index) {
@@ -128,7 +167,12 @@ void ParticleSystem::resizeSystem(int _numParticles) {
             } else {
                 float x = ofRandomWidth();
                 float y = ofRandomHeight();
-                // particles.push_back(ofVec3f(x, y, 0));
+                float z = ofRandom(-depth / 2.0, depth / 2.0);
+                
+                ofVec3f point = ofVec3f(x, y, z);
+                Particle particle = Particle(point, true, 1000);
+                
+                particles.push_back(particle);
             }
         }
     }
@@ -140,6 +184,12 @@ Particle ParticleSystem::getRandomParticle() {
 }
 
 void ParticleSystem::setSimplexMorph(float _amount, float _depth, float _offset, float _wrap, float _pow) {
+    simplexAmount = _amount;
+    simplexDepth = _depth;
+    simplexOffset = _offset;
+    simplexWrap = _wrap;
+    simplexPow = _pow;
+    
     for (int i = 0; i < numParticles; i++) {
         particles[i].setSimplexMorph(_amount, _depth, _offset, _wrap, _pow);
     }
@@ -192,3 +242,21 @@ void ParticleSystem::scalePoints() {
 int ParticleSystem::getNumParticles() {
     return int(particles.size());
 }
+
+void ParticleSystem::dissipate() {
+    for (int i = 0; i < numParticles; i++) {
+        ofVec3f position = particles[i].getPosition();
+        ofVec3f destination = (position - center) * 5.0 + center;
+        
+        float particleSize = particles[i].getParticleSize();
+        particles[i].setParticleSize(particleSize * 1.5);
+        
+        particles[i].setSimplexMorph(ofRandom(50, 150), 0.004, 0.01, TWO_PI, 1.0);
+        particles[i].setLifetime(1.0, 0.0025);
+        particles[i].setPersistence(false);
+        particles[i].setRandomFollow(0.01);
+        
+        particles[i].setOrigin(ofVec3f(destination.x, destination.y, position.z));
+    }
+ }
+

@@ -38,35 +38,36 @@ void ofApp::setup(){
     twist = ofVec3f(0.0, 0.0, 0.0);
     
     scale = 1.0;
-    follow = 0.04;
+    follow = 0.06;
     particleSize = 2.0;
 
-    simplexAmount = 150.0;
-    simplexDepth = 0.004;
-    simplexOffset = 0.001;
-    simplexPow = 1.0;
-    simplexWrap = TWO_PI;
-    
     blur = 0.5;
     bloomSpread = 0.7;
     bloomIntensity = 1.1;
     
     autoRotateFlag = true;
     
-    // initialize classes
-    // particleSystem.setRectangle(0, 0, 100, ofGetHeight());
-    // particleSystem.setNumParticles(0);
-    // particleSystem.setCircle(ofGetWidth() / 2.0, ofGetHeight() / 2.0, 300);
-    // particleSystem.setColor(primaryColor);
-    
+    // initialize systems
+    particleSystem.setSimplexMorph(150, 0.004, 0.00025, TWO_PI, 1.0);
+
     // initialize cam
     cam.setupPerspective();
 }
 
+void ofApp::updatePointOfInterest() {
+    for (int i = 0; i < pools.size(); i++) {
+        pools[i].setScale(scale);
+        pools[i].setTwist(twist);
+        pools[i].update();
+        
+        if (pools[i].getNumParticles() == 0) {
+            pools.erase(pools.begin() + i);
+        }
+    }
+}
+
 void ofApp::updateParticleSystem() {
-    particleSystem.setSimplexMorph(simplexAmount, simplexDepth, simplexOffset, simplexWrap, simplexPow);
     particleSystem.setScale(scale);
-    particleSystem.setFollow(follow);
     particleSystem.setTwist(twist);
     particleSystem.update();
 }
@@ -75,6 +76,7 @@ void ofApp::updateParticleSystem() {
 void ofApp::update() {
     updateOsc();
     updateParticleSystem();
+    updatePointOfInterest();
 }
 
 //--------------------------------------------------------------
@@ -96,7 +98,10 @@ void ofApp::draw(){
     // draw
     ofBackground(backgroundColor);
     ofEnableDepthTest();
-    drawParticleSystem();
+    particleSystem.draw();
+    for (int i = 0; i < pools.size(); i++) {
+        pools[i].draw();
+    }
     ofDisableDepthTest();
     fboBloom.end();
     
@@ -147,16 +152,6 @@ void ofApp::draw(){
     ofSetWindowTitle(strm.str());
 }
 
-void ofApp::drawParticleSystem() {
-    //ofPushMatrix();
-    //ofTranslate(ofGetWidth() / 2.0, ofGetHeight() / 2.0);
-    //ofRotateXRad(rotation.x);
-    //ofRotateYRad(rotation.y);
-    
-    particleSystem.draw();
-    
-   // ofPopMatrix();
-}
 
 void ofApp::updateOsc() {
     while(oscReceiver.hasWaitingMessages()) {
@@ -182,7 +177,7 @@ void ofApp::updateOsc() {
             width *= ofGetWidth();
             height *= ofGetHeight();
             
-            particleSystem.setRectangle(x, y, width, height);
+            particleSystem.setRectangle(x, y, width, height, 300);
         }
         
         if (m.getAddress() == "/particleSize") {
@@ -190,41 +185,29 @@ void ofApp::updateOsc() {
             particleSystem.setParticleSize(particleSize);
         }
         
-        if (m.getAddress() == "/depth") {
-            depth = m.getArgAsFloat(0);
-            particleSystem.setDepth(depth);
-        }
-        
-        if (m.getAddress() == "/blur") {
-            blur = m.getArgAsFloat(0);
-        }
-        
-        if (m.getAddress() == "/bloomIntensity") {
-            bloomIntensity = m.getArgAsFloat(0);
-        }
-        
-        if (m.getAddress() == "/bloomSpread") {
-            bloomSpread = m.getArgAsFloat(0);
-        }
+        if (m.getAddress() == "/addPool") {
+            int index = m.getArgAsInt(0);
+            float x = m.getArgAsFloat(1) * ofGetWidth();
+            float y = m.getArgAsFloat(2) * ofGetHeight();
 
-        if (m.getAddress() == "/simplexDepth") {
-            simplexDepth = m.getArgAsFloat(0);
+            ParticleSystem pool;
+            pool.setIndex(index);
+            pool.setCircle(x, y, ofRandom(100, 200), 1500);
+            pool.setSimplexMorph(50.0, 0.004, 0.004, TWO_PI, 1.0);
+            pool.setRandomParticleSizes(2.0, 4.0);
+            pool.setFollow(0.01);
+            
+            pools.push_back(pool);
         }
         
-        if (m.getAddress() == "/simplexOffset") {
-            simplexOffset = m.getArgAsFloat(0);
-        }
-        
-        if (m.getAddress() == "/simplexWrap") {
-            simplexWrap = m.getArgAsFloat(0);
-        }
-        
-        if (m.getAddress() == "/simplexPow") {
-            simplexPow = m.getArgAsFloat(0);
-        }
-        
-        if (m.getAddress() == "/simplexAmount") {
-            simplexAmount = m.getArgAsFloat(0);
+        if (m.getAddress() == "/dissipatePool") {
+            int index = m.getArgAsInt(0);
+            
+            for (int i = 0; i < pools.size(); i++) {
+                if (pools[i].getIndex() == index) {
+                    pools[i].dissipate();
+                }
+            }
         }
     }
 }
