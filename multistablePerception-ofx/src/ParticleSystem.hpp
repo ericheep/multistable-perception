@@ -1,6 +1,6 @@
 //
 //  ParticleSystem.hpp
-//  multistablePerception
+//  multistable perception
 //
 
 #ifndef ParticleSystem_hpp
@@ -21,7 +21,7 @@ public:
     
     ofVec3f getParticlePosition(int index);
     
-    void addParticle(float x, float y, float lifetime);
+    void addParticle(float x, float y, float lifetime, Boolean persistence);
     void setIndex(int index);
     void setDepth(float _depth);
     void setScale(float _scale);

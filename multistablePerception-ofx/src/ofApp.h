@@ -7,6 +7,7 @@
 #include "ofMain.h"
 #include "ofxOsc.h"
 #include "ofShader.h"
+#include "ofxQuadWarp.h"
 
 #include "ParticleSystem.hpp"
 
@@ -18,6 +19,10 @@ public:
     void setup();
     void update();
     void draw();
+    void exit();
+    void keyPressed(int key);
+    
+    ofxQuadWarp warper;
 private:
     void updateOsc();
     void updatePointOfInterest();
@@ -25,6 +30,16 @@ private:
 
     ParticleSystem particleSystem;
     vector<ParticleSystem> pools;
+    
+    
+    ParticleSystem speakerTest;
+    ParticleSystem zipper;
+    ParticleSystem rotatingRocks;
+    ParticleSystem iceColumns;
+    ParticleSystem blips;
+    ParticleSystem stasis;
+    ParticleSystem vinylShifts;
+    ParticleSystem waves;
     
     ofShader bloom;
     ofShader blurX;
@@ -46,11 +61,22 @@ private:
     ofVec2f rotation;
     ofVec2f targetRotation;
     ofVec3f twist;
+    ofVec3f stasisTwist;
     
     ofColor primaryColor;
     ofColor backgroundColor;
     
-    float fuzzy, scale, follow, statusProgress;
+    ofColor amy;
+    ofColor danny;
+    ofColor ethan;
+    ofColor eric;
+    ofColor joe;
+    vector<ofColor> rachel;
+    
+    ofPoint points[10];
+    
+    float fuzzy, scale, follow, statusProgress, stasisRotation, blipsRotation;
     float blur, bloomIntensity, bloomSpread, particleSize, depth;
+    
     Boolean autoRotateFlag;
 };

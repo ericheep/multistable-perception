@@ -40,6 +40,18 @@
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
 				"box" : 				{
+					"comment" : "",
+					"id" : "obj-27",
+					"index" : 4,
+					"maxclass" : "outlet",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 1085.0, 455.97058367729187, 30.0, 30.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
 					"id" : "obj-30",
 					"maxclass" : "newobj",
 					"numinlets" : 2,
@@ -463,7 +475,7 @@
 					"patching_rect" : [ 276.5, 455.97058367729187, 242.0, 69.0 ],
 					"saved_attribute_attributes" : 					{
 						"valueof" : 						{
-							"parameter_longname" : "mc.live.gain~[30]",
+							"parameter_longname" : "mc.live.gain~[18]",
 							"parameter_mmax" : 6.0,
 							"parameter_mmin" : -70.0,
 							"parameter_shortname" : "waves",
@@ -638,7 +650,7 @@
 			}
 , 			{
 				"box" : 				{
-					"buffername" : "11433_buffer",
+					"buffername" : "1574_buffer",
 					"id" : "obj-52",
 					"maxclass" : "waveform~",
 					"numinlets" : 5,
@@ -653,8 +665,8 @@
 					"id" : "obj-1",
 					"maxclass" : "newobj",
 					"numinlets" : 8,
-					"numoutlets" : 4,
-					"outlettype" : [ "multichannelsignal", "", "", "" ],
+					"numoutlets" : 5,
+					"outlettype" : [ "multichannelsignal", "", "", "", "" ],
 					"patching_rect" : [ 276.5, 418.0, 1097.0, 22.0 ],
 					"text" : "mc.poly~ mp.polyFreeze #2 @args #0_buffer"
 				}
@@ -662,6 +674,13 @@
 			}
  ],
 		"lines" : [ 			{
+				"patchline" : 				{
+					"destination" : [ "obj-27", 0 ],
+					"source" : [ "obj-1", 3 ]
+				}
+
+			}
+, 			{
 				"patchline" : 				{
 					"destination" : [ "obj-52", 2 ],
 					"order" : 1,

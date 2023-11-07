@@ -1,6 +1,6 @@
 //
 //  Particle.cpp
-//  multistablePerception
+//  multistable perception
 //
 
 #include "Particle.hpp"
@@ -49,8 +49,8 @@ Particle::Particle(ofVec3f _point, Boolean _isPersistent, float _lifetime) {
     
     isAlive = true;
     
-    primaryColor = ofColor::white;
-    secondaryColor = ofColor::grey.getLerped(ofColor::whiteSmoke, ofRandom(1.0));
+    // primaryColor = ofColor::white;
+    // secondaryColor = ofColor::grey.getLerped(ofColor::whiteSmoke, ofRandom(1.0));
     particleColor = primaryColor;
 }
 
@@ -108,6 +108,10 @@ ofVec3f Particle::getNormal() {
     return normal;
 }
 
+void Particle::setColor(ofColor _primaryColor) {
+    primaryColor = _primaryColor;
+}
+
 void Particle::setRandomFollow(float _randomFollow) {
     follow = ofRandom(_randomFollow, _randomFollow * 2.0);
 }
@@ -160,6 +164,8 @@ void Particle::updatePosition() {
 void Particle::update(){
     if (!isPersistent) {
         updateLifetime();
+    } else {
+        particleSize = 2.0;
     }
     updateOrigin();
     updateTwist();
@@ -180,7 +186,7 @@ void Particle::updateLifetime() {
 
 void Particle::draw() {
     ofFill();
-    ofSetColor(particleColor);
+    ofSetColor(primaryColor);
     ofDrawSphere(position, particleSize);
 }
 

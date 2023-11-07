@@ -1,6 +1,6 @@
 //
 //  Particle.hpp
-//  multistablePerception
+//  multistable perception
 //
 
 #ifndef Particle_hpp
@@ -27,6 +27,7 @@ public:
     void setParticleSize(float particleSize);
     float getParticleSize();
     
+    void setColor(ofColor primaryColor);
     void setTarget(ofVec3f _target);
     void setTwist(ofVec3f twist);
     void setRotation(ofVec3f rotation);

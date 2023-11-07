@@ -1,6 +1,6 @@
 //
 //  ParticleSystem.cpp
-//  multistablePerception
+//  multistable perception
 //
 
 #include "ParticleSystem.hpp"
@@ -59,12 +59,16 @@ void ParticleSystem::setTargets(ofVec3f target) {
     }
 }
 
-void ParticleSystem::addParticle(float _x, float _y, float _lifetime) {
+void ParticleSystem::addParticle(float _x, float _y, float _lifetime, Boolean _persistence) {
     float z = ofRandom(-depth / 2.0, depth / 2.0);
     ofVec3f point = ofVec3f(_x, _y, z);
     Particle particle = Particle(point, false, _lifetime);
     particle.setSimplexMorph(simplexAmount, simplexDepth, simplexOffset, simplexWrap, simplexPow);
     particle.setRandomFollow(follow);
+    particle.setColor(primaryColor);
+    particle.setPersistence(_persistence);
+    particle.setPosition(ofVec3f(_x, _y, z));
+    particle.setOrigin(ofVec3f(_x, _y, z));
     particles.push_back(particle);
     
     numParticles = int(particles.size());
@@ -142,7 +146,7 @@ void ParticleSystem::setTwist(ofVec3f _twist) {
         particleTwist.y = (float(i) / numParticles) * _twist.y;
         particleTwist.z = (float(i) / numParticles) * _twist.z;
         
-        particles[i].setTwist(particleTwist);
+        particles[i].setTwist(_twist);
     }
 }
 
@@ -246,7 +250,9 @@ int ParticleSystem::getNumParticles() {
 void ParticleSystem::dissipate() {
     for (int i = 0; i < numParticles; i++) {
         ofVec3f position = particles[i].getPosition();
-        ofVec3f destination = (position - center) * 5.0 + center;
+        ofVec3f destination = ofVec3f(ofRandom(-ofGetWidth(), ofGetWidth()),
+                                      ofRandom(-ofGetWidth(), ofGetWidth()),
+                                      ofRandom(-ofGetWidth(), ofGetWidth()));
         
         float particleSize = particles[i].getParticleSize();
         particles[i].setParticleSize(particleSize * 1.5);
